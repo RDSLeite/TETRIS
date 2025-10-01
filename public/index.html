@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tetris Do Rui</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <audio id="musicMain" src="Audio/bgm_main.mp3" preload="auto"></audio>
+  <audio id="musicLevelUp" src="Audio/bgm_levelup.mp3" preload="auto"></audio>
+  <audio id="musicGameOver" src="Audio/bgm_GameOver.mp3" preload="auto"></audio>
+  <audio
+    id="musicLeaderboard"
+    src="Audio/bgm_leaderboard.mp3"
+    preload="auto"
+  ></audio>
+
+  <body>
+    <div id="menu">
+      <h1>Tetris Do Rui</h1>
+      <input type="text" id="nickname" placeholder="Nickname" />
+      <button id="playButton">Jogar</button>
+      <button onclick="showScoreboard()">Scoreboard</button>
+      <button id="muteButton" class="mute-toggle">🔊</button>
+    </div>
+
+    <div id="game" style="display: none">
+      <div id="gameContainer">
+        <button id="muteButton" class="mute-toggle">🔊</button>
+        <div id="leftPanel">
+          <h2>Status</h2>
+          <p id="score">Pontuação: 0</p>
+          <p id="level">Nível: 0</p>
+          <button id="pauseButton">⏸️ Pause</button>
+        </div>
+
+        <canvas id="tetris" width="480" height="800"></canvas>
+
+        <div id="rightPanel">
+          <h2>Controles</h2>
+          <ul>
+            <li>⬅️ / ➡️: Mover</li>
+            <li>⬆️: Rodar</li>
+            <li>⬇️: Descer</li>
+            <li>🅰️ / 🅱️: Rodar</li>
+            <li>🎮 Select: Pausar</li>
+          </ul>
+          <h2>Próxima Peça</h2>
+          <canvas id="next" width="120" height="120"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div id="gameOver" style="display: none">
+      <h2>Game Over!</h2>
+      <p id="finalScore"></p>
+      <button onclick="backToMenu()">Voltar ao Menu</button>
+    </div>
+
+    <div id="scoreboard" style="display: none">
+      <button id="muteButtonScore" class="mute-toggle">🔊</button>
+      <h2>Top 10 Jogadores</h2>
+      <ul id="scoreList"></ul>
+      <button onclick="backToMenu()">Voltar</button>
+    </div>
+    <script type="module">
+      import { createClient } from "https://esm.sh/@supabase/supabase-js";
+
+      const supabase = createClient(
+        "https://ruhctbjgmiqaymbxckxk.supabase.co", // <- substitui pela tua URL
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ1aGN0YmpnbWlxYXltYnhja3hrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI1MzA5NDEsImV4cCI6MjA2ODEwNjk0MX0.da_RzAIr8wED8i4H-OsBCxaUyIst-1URd5d3maQ4yds" // <- substitui pela tua key
+      );
+
+      window.supabase = supabase;
+    </script>
+    <script src="script.js"></script>
+  </body>
+</html>
