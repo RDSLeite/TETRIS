@@ -677,74 +677,46 @@ function update(time = 0) {
 let scoreSaved = false;
 
 function saveScore(name, score) {
-  if (scoreSaved) return; // evita duplicar
-  scoreSaved = true;
+  if (isPaused) return; // ← bloqueia salvar durante pause
+  const data = {
+    datascore: new Date().toISOString().slice(0, 19).replace("T", " "),
+    nickname: name,
+    score: score,
+    game: "Tetris",
+  };
 
-  supabase
-    .from("scores")
-    .insert([
-      {
-        datascore: new Date().toISOString(),
-        nickname: name,
-        score: score,
-        game: "Tetris",
-      },
-    ])
-    .then(({ data, error }) => {
-      if (error) {
-        console.error("Erro ao salvar score:", error);
-      } else {
-        console.log("Pontuação salva com sucesso!", data);
-      }
-    });
+  fetch("http://localhost:3000/api/scores", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  })
+    .then((res) => res.json())
+    .then(() => console.log("Score salvo com sucesso"))
+    .catch((err) => console.error("Erro ao salvar score:", err));
 }
 
 function showScoreboard() {
   stopAllMusic();
   playMusic(musicLeaderboard);
 
-  supabase
-    .from("scores")
-    .select("*")
-    .eq("game", "Tetris")
-    .order("score", { ascending: false })
-    .then(({ data, error }) => {
-      if (error) {
-        console.error("Erro ao buscar leaderboard:", error);
-        return;
-      }
-
-      console.log("✅ Dados recebidos do Supabase:", data);
-
-      // ✅ Filtrar só o melhor score de cada nickname
-      const bestScores = [];
-      const seenNicknames = new Set();
-
-      for (const entry of data) {
-        if (!seenNicknames.has(entry.nickname)) {
-          bestScores.push(entry);
-          seenNicknames.add(entry.nickname);
-        }
-        if (bestScores.length >= 10) break;
-      }
-
-      // 🧾 Mostra na lista
+  fetch("http://localhost:3000/api/scores/bygame/Tetris")
+    .then((res) => res.json())
+    .then((scores) => {
       const list = document.getElementById("scoreList");
-      list.innerHTML = ""; // limpa a lista antiga, se existir
+      list.innerHTML = "";
+      scores
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 10)
+        .forEach(({ nickname, score }) => {
+          const li = document.createElement("li");
+          li.textContent = `${nickname} - ${score}`;
+          list.appendChild(li);
+        });
+    })
+    .catch((err) => console.error("Erro ao buscar leaderboard:", err));
 
-      bestScores.forEach(({ nickname, score }, i) => {
-        const li = document.createElement("li");
-        let medal = "";
-        if (i === 0) medal = "🥇 ";
-        else if (i === 1) medal = "🥈 ";
-        else if (i === 2) medal = "🥉 ";
-        li.textContent = `${medal}${nickname} — ${score}`;
-        list.appendChild(li);
-      });
-
-      document.getElementById("menu").style.display = "none";
-      document.getElementById("scoreboard").style.display = "block";
-    });
+  document.getElementById("menu").style.display = "none";
+  document.getElementById("scoreboard").style.display = "block";
 }
 
 function backToMenu() {
@@ -764,22 +736,36 @@ document.getElementById("playButton").addEventListener("click", () => {
   const name = document.getElementById("nickname").value.trim();
   isPaused = false;
   if (!name) return alert("Digite o seu nickname!");
+  fetch("http://localhost:3000/api/scores/bygame/Tetris")
+    .then((res) => res.json())
+    .then((scores) => {
+      const nameExists = scores.some(
+        (s) => s.nickname.toLowerCase() === name.toLowerCase()
+      );
 
-  scoreSaved = false; // 🧼 reset flag
-
-  player.name = name;
-  player.score = 0;
-  player.level = 0;
-  player.lines = 0;
-  dropInterval = 1000;
-  arena.forEach((row) => row.fill(0));
-  gameRunning = true;
-  document.getElementById("menu").style.display = "none";
-  document.getElementById("game").style.display = "block";
-  playerReset();
-  updateScore();
-  update();
-  playMusic(musicMain);
+      if (nameExists) {
+        alert("Este nickname já está sendo usado. Escolha outro.");
+      } else {
+        // Inicia o jogo normalmente
+        player.name = name;
+        player.score = 0;
+        player.level = 0;
+        player.lines = 0;
+        dropInterval = 1000;
+        arena.forEach((row) => row.fill(0));
+        gameRunning = true;
+        document.getElementById("menu").style.display = "none";
+        document.getElementById("game").style.display = "block";
+        playerReset();
+        updateScore();
+        update();
+        playMusic(musicMain);
+      }
+    })
+    .catch((err) => {
+      console.error("Erro ao verificar nickname:", err);
+      alert("Erro ao verificar nickname. Tente novamente.");
+    });
 });
 
 const muteButton = document.getElementById("muteButton");

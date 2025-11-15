@@ -43,8 +43,8 @@
             <li>⬅️ / ➡️: Mover</li>
             <li>⬆️: Rodar</li>
             <li>⬇️: Descer</li>
-            <li>🅰️ / 🅱️: Rodar</li>
-            <li>🎮 Select: Pausar</li>
+            <!--<li>🅰️ / 🅱️: Rodar</li>-->
+            <!--<li>🎮 Select: Pausar</li>-->
           </ul>
           <h2>Próxima Peça</h2>
           <canvas id="next" width="120" height="120"></canvas>
@@ -64,16 +64,6 @@
       <ul id="scoreList"></ul>
       <button onclick="backToMenu()">Voltar</button>
     </div>
-    <script type="module">
-      import { createClient } from "https://esm.sh/@supabase/supabase-js";
-
-      const supabase = createClient(
-        "https://ruhctbjgmiqaymbxckxk.supabase.co", // <- substitui pela tua URL
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ1aGN0YmpnbWlxYXltYnhja3hrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI1MzA5NDEsImV4cCI6MjA2ODEwNjk0MX0.da_RzAIr8wED8i4H-OsBCxaUyIst-1URd5d3maQ4yds" // <- substitui pela tua key
-      );
-
-      window.supabase = supabase;
-    </script>
     <script src="script.js"></script>
   </body>
 </html>
